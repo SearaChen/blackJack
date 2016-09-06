@@ -1,0 +1,158 @@
+
+import java.util.ArrayList;
+import java.util.Scanner;
+public class Blackjack {
+	public static int getScore(Card input){
+		int i=1;
+		if((input.getValue().equals(Value.JACK))||(input.getValue().equals(Value.QUEEN))||(input.getValue().equals(Value.KING))){
+			return 10;
+		}
+		if(input.getValue().equals(Value.ACE)){
+			return 11;
+		}
+		for(Value thisvalue: Value.values()){
+			i++;
+			if (input.getValue().equals(thisvalue)){
+				break;
+			}
+		}
+		return i;
+	}
+	public static int countValues(CardPile input){
+		int score=0;
+		int numAce=0;
+		for(int i=0; i<input.getNumCards();i++){
+			int indiv=getScore(input.get(i));
+			score+=indiv;
+			if(input.get(i).getValue().equals(Value.ACE)){
+				numAce++;
+			}
+		}
+		
+		for(int i=0;i<numAce;i++){
+			if(score>21){
+				score-=10;
+			}else{
+				break;
+			}
+		}
+		return score;
+	}
+	
+	//boolean that return true if the player has blackjack (i.e.two cards, and have a value of 21
+	public static boolean isBlackJack(CardPile input){
+		if ((countValues(input)==21)&&(input.getNumCards()==2)){
+			return true;
+		}
+			
+		return false;
+	}
+	
+	// a method that wipes out, clean up the hand after a round is finished 
+	public static void removeCards(CardPile input){
+		int temp=input.getNumCards();
+		for (int i=0;i<temp;i++){
+			input.remove(0);
+		}
+	}
+
+	
+	public static void playRound(CardPile deck){
+		//Scanner sc = new Scanner(System.in);
+		
+		//creating the hand of player and dealer 
+		CardPile player= new CardPile();
+		CardPile dealer= new CardPile();
+		
+		//dealing the first two cards
+		for(int i=0; i<2; i++){
+			player.addToBottom(deck.remove(deck.getNumCards()-1));
+			dealer.addToBottom(deck.remove(deck.getNumCards()-1));
+		}
+		//initialize the values for both player and dealer ; display their intial hands
+		int playerValue=countValues(player);
+		int dealerValue=countValues(dealer);
+		System.out.println("The dealer's second card is "+dealer.get(0));
+		System.out.println("Your two cards are " + player.get(0)+" and "+player.get(1));
+		System.out.println("The current value of your hand is "+ playerValue);
+		
+		//seperate the following in to 4 cases
+		//CASE1 : where both got a blackjack 
+		if((isBlackJack(player)==true)&&(isBlackJack(dealer)==true)){
+			System.out.println("It is a tie, both of you have a black jack");
+			System.out.println(" ");
+		
+		//CASE 2: where only player got a blackjack
+		}else if(((isBlackJack(player)==true)&&(isBlackJack(dealer)==false))){
+			System.out.println("Congratulations! You won by blackjack!");
+			System.out.println(" ");
+		
+		//CASE 3: where only the dealer got a blackjack
+		}else if (((isBlackJack(player)==false)&&(isBlackJack(dealer)==true))){
+			System.out.println("Sorry, you lost! Dealer has a blackjack");
+			System.out.println(" ");
+	
+		//CASE 4: no one got blackjack, the round continues 
+		}else {
+			//ask player for next move 
+			System.out.println("Please enter'STAY'or 'HIT'and please do not enter space");
+			Scanner sc = new Scanner(System.in);
+			String nextmove= sc.nextLine();
+			
+			//DEALING CARDS TO PLAYER
+			//loop the players' dealing unless player busts or stay
+			while (nextmove.equalsIgnoreCase("hit")&&(playerValue<=21)){
+				player.addToBottom(deck.remove(deck.getNumCards()-1));
+				playerValue=countValues(player);
+				System.out.println("your hand is: "+ player);
+				System.out.println("The current value of your hand is "+ playerValue);
+				
+				//if the player busts
+				if (playerValue>21){
+					System.out.println("Your hand busted, you suck, sorry, the dealer won :(");
+					removeCards(player);
+					removeCards(dealer);
+					System.out.println(" ");
+					return;
+				//if the player does not bust 
+				} else{
+					System.out.println("Please enter'STAY'or 'HIT'and Please do not enter space");
+					nextmove= sc.nextLine();
+				}
+			}
+			
+			//DEALING CARDS TO DEALER
+			while (countValues(dealer)<18){
+				dealer.addToBottom(deck.remove(deck.getNumCards()-1));
+			}
+			System.out.println("dealer's hand is: "+ dealer);
+			dealerValue=countValues(dealer);
+			
+			//checking if dealer busts
+			if(dealerValue>21){
+				System.out.println("Dealer has busted, congratulations, you won! Go say hi to your mom");
+			} else
+			
+			//COMPARE RESULTS if neither parties have busted, 
+			if(countValues(dealer)>countValues(player)){
+				System.out.println("Game over, you lost, you suck, try again");
+			}else if (countValues(dealer)==countValues(player)){
+				System.out.println("It's a tie :|");
+			}else{
+				System.out.println("Congratulations! you won!");
+			}
+		}
+		removeCards(player);
+		removeCards(dealer);
+		System.out.println(" ");
+	}
+	
+	public static void main(String[] args){
+//construct the four decks	
+		CardPile fourDecks=CardPile.makeFullDeck(4);
+		
+		while(fourDecks.getNumCards()>10){
+			playRound(fourDecks);
+		}
+	}
+}
