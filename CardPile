@@ -1,0 +1,90 @@
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Collection;
+
+	public class CardPile {
+		private ArrayList<Card> cards;
+		private int numCards;
+
+		public CardPile() {
+			this.cards=new ArrayList<Card>();
+			this.numCards=0;
+			}
+
+		public Card remove(int i){
+			Card temp=this.cards.get(i);
+			this.cards.remove(i);
+			numCards--;
+			return temp;
+		}
+		
+		//take input of CardPile, and add a Card object to the end
+		public  void addToBottom(Card c) {
+		    this.cards.add(c);
+		    numCards++;
+		}
+		
+	  public Card get(int i) {
+		return this.cards.get(i); 
+	  }
+			   
+		public int find(Suit s, Value v) {
+			for(int i=0; i< this.numCards;i++){
+				if((this.cards.get(i).getSuit().equals(s))&&(this.cards.get(i).getValue().equals(v))){
+					return i;
+				}
+			}
+			return -1;
+		}
+
+		//toString method that will print the stack of cards
+		public String toString() {
+			String s="";
+			for (int i=0; i<numCards; i++) {
+				s+=( i +". " +this.cards.get(i) +" ");
+			}
+			return s;
+		}
+		
+		//make a full deck of 52 cards
+		public static CardPile makeFullDeck() {
+			CardPile deckCards = new CardPile();
+			Card tempcard;
+			
+//			int counter=0;
+			for(Suit thisSuit: Suit.values()) {
+//				int j=0;
+				for(Value thisvalue:Value.values()) {
+					//tempcard=new Card(thisSuit,thisvalue);
+					deckCards.cards.add(new Card(thisSuit, thisvalue));
+//					j++;
+				}
+//				counter++;
+			}
+		
+			Collections.shuffle(deckCards.cards);
+			deckCards.numCards=52;
+
+			return deckCards;
+		}
+		
+	public static CardPile makeFullDeck(int n) {
+		CardPile deckCards= new CardPile();
+		CardPile fullDeck = makeFullDeck();
+		for(int i =0; i<n;i++){
+			deckCards.cards.addAll(fullDeck.cards);
+		}
+	
+		Collections.shuffle(deckCards.cards);
+		
+		deckCards.numCards=n*52;
+		return deckCards; 
+	}
+	
+	//takes input of CardPile, and return number of Cards 
+	public int getNumCards() {
+		return this.cards.size();
+	}
+}
+
